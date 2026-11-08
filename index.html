@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Diwali | Festival of Lights</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --gold-primary: #ffd700;
+      --gold-secondary: #ff9900;
+      --maroon-deep: #1a0006;
+      --red-accent: #e62244;
+      --glow-flame: rgba(255, 170, 0, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--maroon-deep);
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(80, 0, 20, 0.6) 0%, transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(120, 40, 0, 0.3) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(120, 40, 0, 0.3) 0%, transparent 40%);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    #fireworksCanvas, #sparklerCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #fireworksCanvas {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 850px;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .audio-toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 13px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .audio-toggle-btn:hover {
+      background: rgba(255, 215, 0, 0.35);
+      transform: scale(1.05);
+    }
+
+    .hero-heading {
+      text-align: center;
+    }
+
+    .hero-heading h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 10%, #ffd700 50%, #ff8c00 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+      text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+    }
+
+    .hero-heading p {
+      font-size: 14px;
+      color: #ffcc77;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .interactive-sky-tip {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px dashed rgba(255, 215, 0, 0.3);
+    }
+
+    /* CARD STYLING */
+    .greeting-card {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(165deg, rgba(35, 3, 10, 0.92) 0%, rgba(15, 1, 5, 0.95) 100%);
+      border: 2px solid rgba(255, 215, 0, 0.5);
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.7),
+        0 0 45px rgba(255, 153, 0, 0.2),
+        inset 0 0 25px rgba(255, 215, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    /* DIYA */
+    .diya-wrapper {
+      position: relative;
+      cursor: pointer;
+      margin: 15px 0 25px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .flame-aura {
+      position: absolute;
+      top: -30px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, var(--glow-flame) 0%, transparent 70%);
+      filter: blur(8px);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .diya-flame {
+      width: 28px;
+      height: 52px;
+      background: linear-gradient(to bottom, #ffffff 5%, #ffea00 35%, #ff4d00 85%);
+      border-radius: 50% 50% 35% 35% / 60% 60% 40% 40%;
+      box-shadow: 0 0 20px #ff9900, 0 0 40px #ff4500;
+      transform-origin: center bottom;
+      animation: flicker 0.15s infinite alternate ease-in-out;
+      transition: all 0.5s ease;
+    }
+
+    .diya-flame.off {
+      opacity: 0;
+      transform: scale(0.1);
+    }
+
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(-1.5deg); }
+      100% { transform: scale(1.06, 0.96) rotate(1.5deg); }
+    }
+
+    .diya-base {
+      width: 140px;
+      height: 48px;
+      background: linear-gradient(180deg, #c45b16 0%, #7c2d04 100%);
+      border-radius: 0 0 70px 70px;
+      border: 2px solid #ffd700;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+      margin-top: -8px;
+      position: relative;
+    }
+
+    .diya-base::after {
+      content: "✦ ✦ ✦ ✦";
+      position: absolute;
+      bottom: 6px;
+      left: 0;
+      right: 0;
+      font-size: 11px;
+      color: #ffd700;
+      letter-spacing: 5px;
+      opacity: 0.8;
+    }
+
+    .diya-hint {
+      font-size: 11px;
+      color: rgba(255, 215, 0, 0.7);
+      margin-top: 8px;
+    }
+
+    .recipient-text {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      color: var(--gold-primary);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      margin-bottom: 12px;
+    }
+
+    .custom-wish-message {
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      line-height: 1.7;
+      color: #fff2d6;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+
+    /* CONTROLS */
+    .controls-panel {
+      width: 100%;
+      background: rgba(20, 0, 5, 0.7);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .text-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 18px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 12px;
+      color: #ffd700;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    }
+
+    .action-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #2b0006;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+      z-index: 10;
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--gold-primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="audio-toggle-btn" id="audioToggle">🔔 Sound: ON</button>
+  <canvas id="fireworksCanvas"></canvas>
+  <canvas id="sparklerCanvas"></canvas>
+
+  <div class="app-container">
+    <div class="hero-heading">
+      <h1>SHUBH DEEPAVALI</h1>
+      <p>Festival of Lights & Happiness</p>
+    </div>
+
+    <div class="interactive-sky-tip">✨ Tap or click anywhere in the sky to burst fireworks! ✨</div>
+
+    <!-- MAIN GREETING CARD -->
+    <div class="greeting-card" id="wishingCard">
+      <div class="diya-wrapper" id="diyaBtn">
+        <div class="flame-aura" id="flameAura"></div>
+        <div class="diya-flame" id="flame"></div>
+        <div class="diya-base"></div>
+        <div class="diya-hint">Click diya to toggle light</div>
+      </div>
+
+      <div class="recipient-text" id="cardName">Dear Friend & Family</div>
+      <div class="custom-wish-message" id="cardMsg">
+        May the divine light of Diwali bring immense joy, good health, peace, and boundless success to your life. Wishing you and your family a luminous year ahead!
+      </div>
+    </div>
+
+    <!-- EDIT & SHARE CONTROLS -->
+    <div class="controls-panel">
+      <div class="input-row">
+        <input type="text" class="text-input" id="nameInput" placeholder="Enter name (e.g. Vishesh Upadhyay)">
+        <button class="action-btn" id="updateBtn">✨ Update Card</button>
+      </div>
+      <div class="btn-row">
+        <button class="action-btn btn-secondary" id="randomBurstBtn">🎆 Fireworks Show</button>
+        <button class="action-btn btn-secondary" id="saveImageBtn">📷 Download Card (PNG)</button>
+        <button class="action-btn btn-secondary" id="shareBtn">🔗 Copy Share Link</button>
+      </div>
+    </div>
+
+    <footer>
+      Crafted with ❤️ for Diwali Celebration • Hosted on GitHub Pages
+    </footer>
+  </div>
+
+  <script>
+    /* AUDIO SYNTHESIZER (No external audio needed) */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playCrackerSound() {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const bufferSize = audioCtx.sampleRate * 0.4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.08));
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        noise.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+      } catch (e) {}
+    }
+
+    function playDiyaBellSound() {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+      } catch (e) {}
+    }
+
+    document.getElementById('audioToggle').addEventListener('click', () => {
+      initAudio();
+      soundEnabled = !soundEnabled;
+      document.getElementById('audioToggle').textContent = soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+    });
+
+    /* FIREWORKS ENGINE */
+    const fCanvas = document.getElementById('fireworksCanvas');
+    const fCtx = fCanvas.getContext('2d');
+    let rockets = [];
+    let particles = [];
+
+    function resizeCanvas() {
+      fCanvas.width = window.innerWidth;
+      fCanvas.height = window.innerHeight;
+      sCanvas.width = window.innerWidth;
+      sCanvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 1.5;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.015 + 0.01;
+        this.gravity = 0.08;
+      }
+      update() {
+        this.vx *= 0.98;
+        this.vy *= 0.98;
+        this.vy += this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.decay;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    class Rocket {
+      constructor(tx, ty) {
+        this.x = tx + (Math.random() * 60 - 30);
+        this.y = window.innerHeight;
+        this.tx = tx;
+        this.ty = ty;
+        this.speed = 10;
+        const angle = Math.atan2(ty - this.y, tx - this.x);
+        this.vx = Math.cos(angle) * this.speed;
+        this.vy = Math.sin(angle) * this.speed;
+        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.vy < 0 && this.y <= this.ty) {
+          this.explode();
+          return false;
+        }
+        return true;
+      }
+      explode() {
+        playCrackerSound();
+        for (let i = 0; i < 65; i++) {
+          particles.push(new Particle(this.x, this.y, this.color));
+        }
+      }
+      draw(ctx) {
+        ctx.fillStyle = "#ffd700";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function createFirework(x, y) {
+      initAudio();
+      rockets.push(new Rocket(x, y));
+    }
+
+    fCanvas.addEventListener('pointerdown', (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    function loopFireworks() {
+      fCtx.fillStyle = 'rgba(26, 0, 6, 0.22)';
+      fCtx.fillRect(0, 0, fCanvas.width, fCanvas.height);
+
+      rockets = rockets.filter(r => {
+        r.draw(fCtx);
+        return r.update();
+      });
+
+      particles = particles.filter(p => {
+        p.update();
+        p.draw(fCtx);
+        return p.alpha > 0;
+      });
+
+      requestAnimationFrame(loopFireworks);
+    }
+
+    /* SPARKLER TRAIL (CURSOR) */
+    const sCanvas = document.getElementById('sparklerCanvas');
+    const sCtx = sCanvas.getContext('2d');
+    let sparklers = [];
+
+    window.addEventListener('pointermove', (e) => {
+      for (let i = 0; i < 3; i++) {
+        sparklers.push({
+          x: e.clientX,
+          y: e.clientY,
+          vx: (Math.random() - 0.5) * 3,
+          vy: (Math.random() - 0.5) * 3,
+          alpha: 1,
+          color: Math.random() > 0.5 ? '#ffd700' : '#ff4500'
+        });
+      }
+    });
+
+    function loopSparkler() {
+      sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+      sparklers = sparklers.filter(s => {
+        s.x += s.vx;
+        s.y += s.vy;
+        s.alpha -= 0.03;
+        sCtx.save();
+        sCtx.globalAlpha = Math.max(0, s.alpha);
+        sCtx.fillStyle = s.color;
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, 1.8, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.restore();
+        return s.alpha > 0;
+      });
+      requestAnimationFrame(loopSparkler);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    loopFireworks();
+    loopSparkler();
+
+    /* DIYA TOGGLE */
+    const diyaBtn = document.getElementById('diyaBtn');
+    const flame = document.getElementById('flame');
+    const flameAura = document.getElementById('flameAura');
+    let isLit = true;
+
+    diyaBtn.addEventListener('click', () => {
+      initAudio();
+      isLit = !isLit;
+      if (isLit) {
+        flame.classList.remove('off');
+        flameAura.style.opacity = '1';
+        playDiyaBellSound();
+      } else {
+        flame.classList.add('off');
+        flameAura.style.opacity = '0';
+      }
+    });
+
+    /* CARD NAME & SHARE LINK */
+    const nameInput = document.getElementById('nameInput');
+    const updateBtn = document.getElementById('updateBtn');
+    const cardName = document.getElementById('cardName');
+    const shareBtn = document.getElementById('shareBtn');
+    const saveImageBtn = document.getElementById('saveImageBtn');
+    const randomBurstBtn = document.getElementById('randomBurstBtn');
+
+    // Load name from URL param if available
+    const urlParams = new URLSearchParams(window.location.search);
+    const recipient = urlParams.get('from');
+    if (recipient) {
+      cardName.textContent = `Wishes From ${decodeURIComponent(recipient)}`;
+    }
+
+    updateBtn.addEventListener('click', () => {
+      const val = nameInput.value.trim();
+      if (val) {
+        cardName.textContent = val;
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            createFirework(
+              window.innerWidth * 0.2 + Math.random() * window.innerWidth * 0.6,
+              window.innerHeight * 0.15 + Math.random() * window.innerHeight * 0.35
+            );
+          }, i * 250);
+        }
+      }
+    });
+
+    randomBurstBtn.addEventListener('click', () => {
+      for (let i = 0; i < 6; i++) {
+        setTimeout(() => {
+          createFirework(
+            window.innerWidth * 0.15 + Math.random() * window.innerWidth * 0.7,
+            window.innerHeight * 0.1 + Math.random() * window.innerHeight * 0.4
+          );
+        }, i * 280);
+      }
+    });
+
+    shareBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim() || 'Vishesh';
+      const shareUrl = `${window.location.origin}${window.location.pathname}?from=${encodeURIComponent(name)}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert("✨ Shareable Greeting Link copied to clipboard!");
+      });
+    });
+
+    saveImageBtn.addEventListener('click', () => {
+      html2canvas(document.getElementById('wishingCard'), {
+        backgroundColor: '#1a0006',
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Happy-Diwali-Greeting.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
+  </script>
+</body>
+</html>
